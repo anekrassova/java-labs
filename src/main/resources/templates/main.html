@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Task App</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<h1>Task List</h1>
+
+<!-- Форма фильтрации -->
+<form th:action="@{/tasks}" method="get">
+    <div>Filters:</div>
+    <label for="status">Status:</label>
+    <select name="status" id="status">
+        <option value="">All Statuses</option>
+        <option value="Scheduled">Scheduled</option>
+        <option value="Done">Done</option>
+    </select>
+
+    <label for="category">Category:</label>
+    <select name="categoryId" id="category">
+        <option value="">All Categories</option>
+        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}">
+            Категория
+        </option>
+    </select>
+
+    <button type="submit">Apply Filters</button>
+</form>
+
+<!-- Ссылка для сортировки по дате -->
+<div>
+    <a th:href="@{/tasks?sort=date}" class="sort-link">Sort by Due Date</a>
+</div>
+
+<!-- Таблица задач -->
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Due Date</th>
+        <th>Priority</th>
+        <th>Category</th>
+        <th>Status</th>
+    </tr>
+    <tr th:each="task : ${tasks}">
+        <td th:text="${task.title}">Заголовок</td>
+        <td th:text="${task.description}">Описание</td>
+        <td th:text="${task.dueDate}">Срок выполнения</td>
+        <td th:text="${task.priority}">Приоритет</td>
+        <td th:text="${task.category.name}">Категория</td>
+        <td th:text="${task.status}">Статус</td>
+    </tr>
+</table>
+
+<!-- кнопки управления задачами -->
+<div class="button-container">
+    <a th:href="@{/tasks/add}" class="button">Add task</a>
+    <a th:href="@{/tasks/edit}" class="button">Edit task</a>
+    <a th:href="@{/tasks/delete}" class="button">Delete</a>
+</div>
+
+</body>
+</html>
