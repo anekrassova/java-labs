@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Task</title>
+</head>
+<body>
+<h1>Delete task</h1>
+<form th:action="@{/tasks/delete}" method="post">
+    <div>
+        <label for="task">Choose task to delete:</label>
+        <select id="task" name="taskId" required>
+            <option th:each="task : ${tasks}"
+                    th:value="${task.id}"
+                    th:text="${task.title}">
+            </option>
+        </select>
+    </div>
+    <div>
+        <button type="submit">Delete</button>
+        <a href="/">Cancel</a>
+    </div>
+</form>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Task</title>
+    <script>
+        async function loadTaskData() {
+            const taskId = document.getElementById('task').value;
+            if (!taskId) return;
+
+            const response = await fetch(`/tasks/edit/${taskId}`);
+            if (response.ok) {
+                const task = await response.json();
+                document.getElementById('description').value = task.description;
+                document.getElementById('dueDate').value = task.dueDate.replace(" ", "T");
+                document.getElementById('priority').value = task.priority;
+                document.getElementById('category').value = task.category.id;
+                document.getElementById('status').value = task.status;
+            }
+        }
+    </script>
+</head>
+<body>
+<h1>Edit task</h1>
+<form th:action="@{/tasks/edit}" method="post">
+    <div>
+        <label for="task">Choose task to edit:</label>
+        <select id="task" name="taskId" required onchange="loadTaskData()">
+            <option value="" selected disabled>-- Select a task --</option>
+            <option th:each="task : ${tasks}"
+                    th:value="${task.id}"
+                    th:text="${task.title}">
+            </option>
+        </select>
+    </div>
+    <div>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" placeholder="Enter description..."></textarea>
+    </div>
+
+    <div>
+        <label for="dueDate">Due date:</label>
+        <input type="datetime-local" id="dueDate" name="dueDate" required min=""/>
+        <script>
+            document.getElementById('dueDate').min = new Date().toISOString().slice(0, 16);
+        </script>
+    </div>
+
+    <div>
+        <label for="priority">Priority:</label>
+        <select id="priority" name="priority" required>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="category">Category:</label>
+        <select id="category" name="categoryId" required>
+            <option th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}">
+            </option>
+        </select>
+    </div>
+    <div>
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+            <option value="Scheduled">Scheduled</option>
+            <option value="Done">Done</option>
+        </select>
+    </div>
+    <div>
+        <button type="submit">Edit</button>
+        <a href="/">Cancel</a>
+    </div>
+</form>
+</body>
+</html>
