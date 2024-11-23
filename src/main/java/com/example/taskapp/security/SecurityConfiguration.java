@@ -38,29 +38,28 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/registration", "/login", "/uploads/**").permitAll()
+                        .requestMatchers("/registration", "/login", "/uploads/**","/reset-password","/reset-password-form").permitAll()
                         .requestMatchers("/admin/**", "/add-category").hasAuthority("ADMIN_ROLE")
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
-                        .successHandler(customAuthenticationSuccessHandler())  // Указан кастомный обработчик успешного входа
+                        .successHandler(customAuthenticationSuccessHandler())
                         .permitAll()
                 )
                 .logout((logout) -> logout.permitAll())
                 .csrf((csrf) -> csrf
-                        .ignoringRequestMatchers("/add-category") // Отключаем CSRF для /add-category
+                        .ignoringRequestMatchers("/add-category", "/reset-password-form")
                 );
         return http.build();
     }
-    // Кастомный обработчик успешного входа
     private AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return (request, response, authentication) -> {
-            String role = authentication.getAuthorities().toString(); // Получаем роль пользователя
-            if (role.contains("USER_ROLE")) { // Если роль USER_ROLE
-                response.sendRedirect("/profile"); // Перенаправление на страницу профиля пользователя
+            String role = authentication.getAuthorities().toString();
+            if (role.contains("USER_ROLE")) {
+                response.sendRedirect("/profile");
             } else {
-                response.sendRedirect("/admin"); // Перенаправление для других ролей, например, для администратора
+                response.sendRedirect("/admin");
             }
         };
     }

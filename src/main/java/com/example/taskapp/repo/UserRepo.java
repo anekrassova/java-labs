@@ -35,7 +35,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query("UPDATE User u SET u.lastUpdated = :lastUpdated WHERE u.id = :userId")
     void updateLastUpdated(@Param("userId") Long userId, @Param("lastUpdated") LocalDateTime lastUpdated);
 
-
     List<User> findAllByRole(ERole role);
     String findEmailById(Long id);
+    Optional<User> findByEmail(String email);
 }

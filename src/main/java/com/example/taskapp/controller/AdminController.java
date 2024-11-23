@@ -40,9 +40,8 @@ public class AdminController {
 
     @GetMapping("/logout")
     public String logout() {
-        // Очистка контекста безопасности (автоматически происходит при вызове logout)
         SecurityContextHolder.clearContext();
-        return "redirect:/login"; // Перенаправление на страницу входа
+        return "redirect:/login";
     }
 
     @GetMapping("/admin")
@@ -55,11 +54,11 @@ public class AdminController {
     @GetMapping("/users-tasks/{userId}")
     public String editTasksPage(
             @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") int page, // Текущая страница
-            @RequestParam(required = false) String searchQuery, // Поисковый запрос
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String searchQuery,
             Model model) {
-        User user = userService.getUserById(userId); // Получаем пользователя
-        Pageable pageable = PageRequest.of(page, 10); // Пагинация: 10 задач на страницу
+        User user = userService.getUserById(userId);
+        Pageable pageable = PageRequest.of(page, 10);
 
         Page<Task> tasksPage;
         if (searchQuery != null && !searchQuery.isBlank()) {
@@ -69,12 +68,12 @@ public class AdminController {
         }
 
         model.addAttribute("user", user);
-        model.addAttribute("tasks", tasksPage.getContent()); // Задачи текущей страницы
-        model.addAttribute("currentPage", page); // Номер текущей страницы
-        model.addAttribute("totalPages", tasksPage.getTotalPages()); // Общее количество страниц
-        model.addAttribute("searchQuery", searchQuery); // Текущий поисковый запрос
+        model.addAttribute("tasks", tasksPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", tasksPage.getTotalPages());
+        model.addAttribute("searchQuery", searchQuery);
 
-        return "edit-tasks-admin"; // Возвращаем HTML-шаблон
+        return "edit-tasks-admin";
     }
 
 
@@ -86,33 +85,31 @@ public class AdminController {
             String to = userService.getUserById(userId).getEmail();
             String subject = "Task Deletion";
             String content = "Your task " + taskService.getTaskById(taskId).getTitle() + " has been deleted!";
-            taskService.deleteTaskById(taskId); // Удаляем задачу
+            taskService.deleteTaskById(taskId);
             mailSender.sendMail(to, subject, content);
-            return "redirect:/users-tasks/" + userId; // Перенаправляем на страницу задач пользователя
+            return "redirect:/users-tasks/" + userId;
         } catch (Exception e) {
             model.addAttribute("error", "Failed to delete task: " + e.getMessage());
-            return "error"; // Возвращаем страницу ошибки
+            return "error";
         }
     }
     @GetMapping("/edit-task/{taskId}")
     public String editTaskPage(@PathVariable Long taskId, Model model) {
-        Task task = taskService.getTaskById(taskId); // Получаем задачу по ID
+        Task task = taskService.getTaskById(taskId);
         List<Category> categories = categoryService.getAllCategories();
 
         //отладка
-        System.out.println("Task loaded: " + task);  // Отладочный вывод задачи
+        System.out.println("Task loaded: " + task);
         if (task != null && task.getUser() != null) {
-            System.out.println("Associated User: " + task.getUser().getId());  // Выводим ID пользователя
-        } else {
+            System.out.println("Associated User: " + task.getUser().getId());
             System.out.println("No user associated with the task");
         }
         //конец отладки
 
-        String formattedDueDate = task.getDueDate().toString(); // Например, 2024-12-30T12:00
+        String formattedDueDate = task.getDueDate().toString();
         model.addAttribute("task", task);
         model.addAttribute("categories", categories);
-        model.addAttribute("formattedDueDate", formattedDueDate); // Добавляем форматированную дату в модель
-
+        model.addAttribute("formattedDueDate", formattedDueDate);
         return "edit-task";
     }
     @PostMapping("/update-task")
@@ -120,7 +117,7 @@ public class AdminController {
         try {
             User user = task.getUser();
             //отладка
-            System.out.println("Task loaded: " + task);  // Отладочный вывод задачи
+            System.out.println("Task loaded: " + task);
             if (task != null && task.getUser() != null) {
                 Long userId = user.getId();
                 System.out.println("Associated User: " + userId);
@@ -133,11 +130,11 @@ public class AdminController {
             } else {
                 System.out.println("No user associated with the task");
             }
-            taskService.updateTask(task); // Сохраняем изменения
-            return "redirect:/users-tasks/" + task.getUser().getId(); // Перенаправляем на страницу задач пользователя
+            taskService.updateTask(task);
+            return "redirect:/users-tasks/" + task.getUser().getId();
         } catch (Exception e) {
             model.addAttribute("error", "Failed to update task: " + e.getMessage());
-            return "error"; // Показываем страницу ошибки
+            return "error";
         }
     }
 
@@ -168,7 +165,6 @@ public class AdminController {
         task.setUser(user);
         task.setCategory(category);
         task.setStatus("Pending");
-        //информация о задаче для письма
         String to = userService.getUserById(userId).getEmail();
         String subject = "New task have been added.";
         String content = task.getTitle() + " (" + task.getDescription() + ") have been assigned to you. \n"
@@ -176,7 +172,6 @@ public class AdminController {
         taskService.addTask(task);
         mailSender.sendMail(to, subject, content);
 
-        // Перенаправляем на страницу управления задачами или на страницу пользователя
         return "redirect:/users-tasks/{userId}";
     }
     @GetMapping("/manage-categories")
@@ -189,8 +184,8 @@ public class AdminController {
     @GetMapping("/delete-category/{categoryId}")
     public String deleteCategory(@PathVariable Long categoryId) {
         taskService.deleteTasksByCategoryId(categoryId);
-        categoryService.deleteCategoryById(categoryId); // Удаляем категорию
-        return "redirect:/manage-categories"; // Перенаправляем на страницу управления категориями
+        categoryService.deleteCategoryById(categoryId);
+        return "redirect:/manage-categories";
     }
 
     @GetMapping("/add-category")
@@ -201,8 +196,8 @@ public class AdminController {
     @PostMapping("/add-category")
     public String addCategory(@RequestParam String title) {
         Category category = new Category();
-        category.setName(title); // Устанавливаем название категории
-        categoryService.addCategory(category); // Сохраняем категорию
-        return "redirect:/manage-categories"; // Перенаправляем на страницу управления категориями
+        category.setName(title);
+        categoryService.addCategory(category);
+        return "redirect:/manage-categories";
     }
 }
