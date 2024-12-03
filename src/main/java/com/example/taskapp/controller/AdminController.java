@@ -200,4 +200,36 @@ public class AdminController {
         categoryService.addCategory(category);
         return "redirect:/manage-categories";
     }
+
+    @GetMapping("/add-task-choose-user")
+    public String addTaskChooseUserPage(Model model) {
+        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("users", userService.getUsersWithUserRole());
+        return "add-task-choose-user";
+    }
+    @PostMapping("/add-task-choose-user")
+    public String addTaskChooseUser(
+            @RequestParam("nameId") Long userId,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("dueDate") String dueDate,
+            @RequestParam("priority") String priority,
+            @RequestParam("categoryId") Long categoryId
+    ){
+        User user = userService.getUserById(userId);
+        if (user == null) {
+            return "redirect:/error";
+        }
+        LocalDateTime dueDateTime = LocalDateTime.parse(dueDate);
+        Category category = categoryService.getCategoryById(categoryId);
+        Task task = new Task();
+        task.setTitle(title);
+        task.setDescription(description);
+        task.setDueDate(dueDateTime);
+        task.setPriority(priority);
+        task.setUser(user);
+        task.setCategory(category);
+        taskService.addTask(task);
+        return "redirect:/admin";
+    }
 }
